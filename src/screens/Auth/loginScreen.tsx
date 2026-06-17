@@ -17,10 +17,25 @@ export default function LoginScreen() {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [erro, setErro] = useState('');
+
+  const validarEmail = (value: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+  const handleEmailChange = (text: string) => {
+    const sanitized = text.replace(/\s/g, '');
+    setErro('');
+    setEmail(sanitized);
+  };
 
   const handleLogin = async () => {
     if (!email || !senha) {
       Alert.alert('Atenção', 'Preencha todos os campos.');
+      return;
+    }
+
+    if (!validarEmail(email)) {
+      setErro('Digite um e-mail válido.');
       return;
     }
 
@@ -61,9 +76,12 @@ export default function LoginScreen() {
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
-            onChangeText={setEmail}
+            onChangeText={handleEmailChange}
             style={styles.input}
           />
+          {!!erro && (
+            <Text style={styles.errorText}>{erro}</Text>
+          )}
         </View>
 
         {/* Senha */}
@@ -286,6 +304,12 @@ const styles = StyleSheet.create({
 
   footerText: {
     color: '#666',
+  },
+
+  errorText: {
+    color: '#ef4444',
+    marginTop: 8,
+    fontSize: 13,
   },
 
   footerLink: {
