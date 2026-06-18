@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,15 +9,23 @@ import {
   StatusBar,
   Alert,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
 
 
 export default function LoginScreen() {
   const navigation = useNavigation();
+  const route = useRoute();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
+
+  useEffect(() => {
+    // Recebe erro vindo da tela de cadastro
+    if (route.params?.errorMessage) {
+      setErro(route.params.errorMessage);
+    }
+  }, [route.params?.errorMessage]);
 
   const validarEmail = (value: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);

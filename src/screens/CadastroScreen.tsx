@@ -93,15 +93,17 @@ export default function CadastroScreen({ navigation }: Props) {
   const cadastrarUsuario = async () => {
     setLoading(true);
     const usuario = {
-      nome: dadosFormulario.nome,
-      sobrenome: dadosFormulario.sobrenome,
-      celular: dadosFormulario.celular,
-      email: dadosFormulario.email,
-      senha: dadosFormulario.senha,
-    };
+  nome: `${dadosFormulario.nome} ${dadosFormulario.sobrenome}`.trim(),
+  celular: dadosFormulario.celular.replace(/\D/g, ''), // Remove tudo que não é número
+  email: dadosFormulario.email,
+  senha: dadosFormulario.senha,
+};
 
     try {
-      const response = await fetch("", {
+      console.log("📤 Enviando dados para o servidor:", usuario);
+      
+      // Para emulador Android, use 10.0.2.2 ao invés de 192.168.0.15
+      const response = await fetch("http://10.0.2.2:81/api/clientes.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -109,21 +111,38 @@ export default function CadastroScreen({ navigation }: Props) {
         body: JSON.stringify(usuario),
       });
 
-      const resultado = await response.json();
+      console.log("📊 Status da resposta:", response.status);
+
+      const responseText = await response.text();
+      console.log("📥 Resposta bruta do servidor:", responseText);
+
+      let resultado;
+      try {
+        resultado = JSON.parse(responseText);
+      } catch (e) {
+        console.error("❌ Erro ao fazer parse JSON:", e);
+        throw new Error(`Resposta inválida do servidor: ${responseText}`);
+      }
 
       if (response.ok) {
         Alert.alert("Sucesso", "Usuário cadastrado!");
+        setLoading(false);
+        setTimeout(() => {
+          navigation.navigate("LoginScreen");
+        }, 500);
         return resultado || usuario;
       } else {
-        Alert.alert("Erro", resultado.mensagem || "Falha no cadastro");
+        const errorMsg = resultado.mensagem || `Erro do servidor: ${response.status}`;
+        setLoading(false);
+        navigation.navigate("LoginScreen", { errorMessage: errorMsg } as any);
         return resultado || null;
       }
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível conectar ao servidor.");
-      return null;
-    } finally {
+      const errorMsg = `Não foi possível conectar ao servidor: ${error}`;
+      console.error("❌ Erro na requisição:", error);
       setLoading(false);
-      navigation.navigate("LoginScreen");
+      navigation.navigate("LoginScreen", { errorMessage: errorMsg } as any);
+      return null;
     }
   };
 
