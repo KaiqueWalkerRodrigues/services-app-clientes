@@ -93,15 +93,13 @@ export default function CadastroScreen({ navigation }: Props) {
   const cadastrarUsuario = async () => {
     setLoading(true);
     const usuario = {
-  nome: `${dadosFormulario.nome} ${dadosFormulario.sobrenome}`.trim(),
-  celular: dadosFormulario.celular.replace(/\D/g, ''), // Remove tudo que não é número
-  email: dadosFormulario.email,
-  senha: dadosFormulario.senha,
-};
+      nome: `${dadosFormulario.nome} ${dadosFormulario.sobrenome}`.trim(),
+      celular: dadosFormulario.celular.replace(/\D/g, ""), // Remove tudo que não é número
+      email: dadosFormulario.email,
+      senha: dadosFormulario.senha,
+    };
 
     try {
-      console.log("📤 Enviando dados para o servidor:", usuario);
-      
       // Para emulador Android, use 10.0.2.2 ao invés de 192.168.0.15
       const response = await fetch("http://10.0.2.2:81/api/clientes.php", {
         method: "POST",
@@ -111,16 +109,12 @@ export default function CadastroScreen({ navigation }: Props) {
         body: JSON.stringify(usuario),
       });
 
-      console.log("📊 Status da resposta:", response.status);
-
       const responseText = await response.text();
-      console.log("📥 Resposta bruta do servidor:", responseText);
 
       let resultado;
       try {
         resultado = JSON.parse(responseText);
       } catch (e) {
-        console.error("❌ Erro ao fazer parse JSON:", e);
         throw new Error(`Resposta inválida do servidor: ${responseText}`);
       }
 
@@ -132,14 +126,14 @@ export default function CadastroScreen({ navigation }: Props) {
         }, 500);
         return resultado || usuario;
       } else {
-        const errorMsg = resultado.mensagem || `Erro do servidor: ${response.status}`;
+        const errorMsg =
+          resultado.mensagem || `Erro do servidor: ${response.status}`;
         setLoading(false);
         navigation.navigate("LoginScreen", { errorMessage: errorMsg } as any);
         return resultado || null;
       }
     } catch (error) {
       const errorMsg = `Não foi possível conectar ao servidor: ${error}`;
-      console.error("❌ Erro na requisição:", error);
       setLoading(false);
       navigation.navigate("LoginScreen", { errorMessage: errorMsg } as any);
       return null;
@@ -180,7 +174,10 @@ export default function CadastroScreen({ navigation }: Props) {
                   const usuario = await cadastrarUsuario();
 
                   if (usuario) {
-                    Alert.alert("JSON Gerado", JSON.stringify(usuario, null, 2));
+                    Alert.alert(
+                      "JSON Gerado",
+                      JSON.stringify(usuario, null, 2),
+                    );
                     console.log(usuario);
                   }
                 } catch (error) {
