@@ -36,26 +36,60 @@ export default function LoginScreen() {
     setEmail(sanitized);
   };
 
-  const handleLogin = async () => {
-    if (!email || !senha) {
-      Alert.alert('Atenção', 'Preencha todos os campos.');
-      return;
-    }
+ const handleLogin = async () => {
+  if (!email || !senha) {
+    Alert.alert('Atenção', 'Preencha todos os campos.');
+    return;
+  }
 
-    if (!validarEmail(email)) {
-      setErro('Digite um e-mail válido.');
-      return;
-    }
+  if (!validarEmail(email)) {
+    setErro('Digite um e-mail válido.');
+    return;
+  }
 
-    try {
-      // Sua API aqui
-      console.log({ email, senha });
+  try {
+    const resposta = await fetch(
+      'http://10.0.2.2:81/api/auth/loginCliente',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          senha,
+          origem: 'mobile',
+        }),
+      }
+    );
 
-      Alert.alert('Sucesso', 'Login realizado com sucesso!');
-    } catch (error) {
-      Alert.alert('Erro', 'Falha ao realizar login.');
+    const dados = await resposta.json();
+
+    console.log('Resposta:', dados);
+
+    if (dados.sucesso) {
+      Alert.alert('Sucesso', 'Login realizado!');
+
+      // Token JWT
+      const accessToken = dados.access_token;
+      const refreshToken = dados.refresh_token;
+
+      // Dados do usuário
+      const usuario = dados.usuario;
+
+      console.log('Access Token:', accessToken);
+      console.log('Refresh Token:', refreshToken);
+      console.log('Usuário:', usuario);
+
+      navigation.navigate('HomeScreen' as never);
+    } else {
+      Alert.alert('Erro', dados.mensagem);
     }
-  };
+  } catch (error) {
+    console.log(error);
+    Alert.alert('Erro', 'Não foi possível conectar ao servidor.');
+  }
+};
 
   return (
     <SafeAreaView style={styles.container}>

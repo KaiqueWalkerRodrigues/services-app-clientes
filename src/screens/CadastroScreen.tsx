@@ -103,7 +103,7 @@ export default function CadastroScreen({ navigation }: Props) {
       console.log("📤 Enviando dados para o servidor:", usuario);
       
       // Para emulador Android, use 10.0.2.2 ao invés de 192.168.0.15
-      const response = await fetch("http://10.0.2.2:81/api/clientes.php", {
+      const response = await fetch("http://10.0.2.2:81/api/clientes", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
